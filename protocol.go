@@ -2,6 +2,7 @@ package bus
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/coreos/etcd/clientv3"
 )
@@ -49,6 +50,15 @@ type JobSnapshot struct {
 	CreateTime string `json:"createTime"`
 }
 
+func (s *JobSnapshot) AsJSON() []byte {
+	b, _ := json.Marshal(s)
+	return b
+}
+
+func (s *JobSnapshot) String() string {
+	return string(s.AsJSON())
+}
+
 type JobExecuteSnapshot struct {
 	Id         string `json:"id" xorm:"pk"`
 	JobId      string `json:"jobId" xorm:"job_id"`
@@ -66,4 +76,13 @@ type JobExecuteSnapshot struct {
 	Times      int    `json:"times" xorm:"times"`
 	Status     int    `json:"status" xorm:"status"`
 	Result     string `json:"result" xorm:"result"`
+}
+
+func (s *JobExecuteSnapshot) AsJSON() []byte {
+	b, _ := json.Marshal(s)
+	return b
+}
+
+func (s *JobExecuteSnapshot) String() string {
+	return string(s.AsJSON())
 }

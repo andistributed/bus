@@ -93,14 +93,14 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 
 	if target == "" {
 
-		log.Printf("the snapshot:%v target is nil", snapshot)
+		log.Printf("the snapshot:\n\t%v\ntarget is nil", snapshot)
 		executeSnapshot.Status = JobExecuteUkonwStatus
 		return
 	}
 
 	job, ok := processor.jobs[target]
 	if !ok || job == nil {
-		log.Printf("the snapshot:%v target is not found in the job list", snapshot)
+		log.Printf("the snapshot:\n\t%v\ntarget is not found in the job list", snapshot)
 		executeSnapshot.Status = JobExecuteUkonwStatus
 	}
 
@@ -108,7 +108,7 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 
 	key := processor.snapshotExecutePath + executeSnapshot.Id
 	if err := processor.etcd.Put(key, string(value)); err != nil {
-		log.Printf("the snapshot:%v put snapshot execute fail:%v", executeSnapshot, err)
+		log.Printf("the snapshot:\n\t%v\nput snapshot execute fail:%v", executeSnapshot, err)
 		return
 	}
 
@@ -129,12 +129,12 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 	times := duration / time.Second
 	executeSnapshot.Times = int(times)
 	executeSnapshot.FinishTime = after.Format("2006-01-02 15:04:05")
-	log.Printf("the execute snapshot:%v execute success ", executeSnapshot)
+	log.Printf("the execute snapshot:\n\t%v\nexecute success", executeSnapshot)
 
 	// store the execute job snapshot
 	value, _ = json.Marshal(executeSnapshot)
 	if err := processor.etcd.Put(key, string(value)); err != nil {
-		log.Printf("the snapshot:%v put update snapshot execute fail:%v", executeSnapshot, err)
+		log.Printf("the snapshot:\n\t%v\nput update snapshot execute fail:%v", executeSnapshot, err)
 		return
 	}
 
@@ -147,7 +147,7 @@ func (processor *JobSnapshotProcessor) PushJob(name string, job Job) {
 	defer processor.lk.Unlock()
 
 	if _, ok := processor.jobs[name]; ok {
-		log.Printf("the job %s :%v  has exist!", name, job)
+		log.Printf("the job %s: %v has exist!", name, job)
 		return
 	}
 
