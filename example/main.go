@@ -8,10 +8,24 @@ import (
 )
 
 func main() {
+	go startClient("127.0.0.1")
+	go startClient("127.0.0.2")
+	startClient("127.0.0.3")
+}
+
+func startClient(myIP string) {
 	etcd, _ := bus.NewEtcd([]string{"127.0.0.1:2379"}, time.Second*10)
-	forestClient := bus.NewForestClient("trade", "127.0.0.1", etcd)
+	forestClient := bus.NewForestClient("trade", myIP, etcd)
 
 	forestClient.PushJob("com.busgo.cat.job.EchoJob", &EchoJob{})
+	forestClient.Bootstrap()
+}
+
+func startClient2(myIP string) {
+	etcd, _ := bus.NewEtcd([]string{"127.0.0.1:2379"}, time.Second*10)
+	forestClient := bus.NewForestClient("trade", myIP, etcd)
+
+	forestClient.PushJob("com.busgo.cat.job.EchoJob2", &EchoJob{})
 	forestClient.Bootstrap()
 }
 
