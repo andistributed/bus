@@ -8,7 +8,7 @@
 
 ## 快速开始
 
-> go get github.com/andistributed/cat
+> go get github.com/andistributed/bus
 
 ### 定义一个任务
 
