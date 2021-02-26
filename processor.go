@@ -12,13 +12,13 @@ const jobSnapshotPrefix = "/forest/client/snapshot/%s/%s/"
 const jobExecuteSnapshotPrefix = "/forest/client/execute/snapshot/%s/%s/"
 
 const (
-	// 执行中
+	// JobExecuteDoingStatus 执行中
 	JobExecuteDoingStatus = 1
-	// 执行成功
+	// JobExecuteSuccessStatus 执行成功
 	JobExecuteSuccessStatus = 2
-	// 未知
+	// JobExecuteUkonwStatus 未知
 	JobExecuteUkonwStatus = 3
-	// 执行失败
+	// JobExecuteErrorStatus 执行失败
 	JobExecuteErrorStatus = -1
 )
 
@@ -31,8 +31,8 @@ type JobSnapshotProcessor struct {
 	lk                  *sync.RWMutex
 }
 
-// new a job snapshot processor
-func NewJobSnapshotProcessor(group, ip string, etcd *Etcd) (*JobSnapshotProcessor) {
+// NewJobSnapshotProcessor new a job snapshot processor
+func NewJobSnapshotProcessor(group, ip string, etcd *Etcd) *JobSnapshotProcessor {
 
 	processor := &JobSnapshotProcessor{
 		etcd:      etcd,
@@ -112,7 +112,7 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 		return
 	}
 
-	if executeSnapshot.Status !=JobExecuteDoingStatus {
+	if executeSnapshot.Status != JobExecuteDoingStatus {
 		return
 	}
 
@@ -140,7 +140,7 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 
 }
 
-// push a job to job list
+// PushJob push a job to job list
 func (processor *JobSnapshotProcessor) PushJob(name string, job Job) {
 
 	processor.lk.Lock()

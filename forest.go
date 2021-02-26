@@ -29,8 +29,8 @@ type ForestClient struct {
 	snapshotProcessor *JobSnapshotProcessor
 }
 
-// new a client
-func NewForestClient(group, ip string, etcd *Etcd) (*ForestClient) {
+// NewForestClient new a client
+func NewForestClient(group, ip string, etcd *Etcd) *ForestClient {
 
 	return &ForestClient{
 		etcd:  etcd,
@@ -43,7 +43,7 @@ func NewForestClient(group, ip string, etcd *Etcd) (*ForestClient) {
 
 }
 
-// bootstrap client
+// Bootstrap bootstrap client
 func (client *ForestClient) Bootstrap() (err error) {
 
 	if err = client.validate(); err != nil {
@@ -66,7 +66,7 @@ func (client *ForestClient) Bootstrap() (err error) {
 	return
 }
 
-// stop  client
+// Stop stop client
 func (client *ForestClient) Stop() {
 	if client.running {
 		client.quit <- true
@@ -101,14 +101,14 @@ func (client *ForestClient) validate() (err error) {
 	return
 }
 
-// push a new job to job list
+// PushJob push a new job to job list
 func (client ForestClient) PushJob(name string, job Job) (err error) {
 
 	if client.running {
-		return errors.New(fmt.Sprintf("the forest client is running not allow push a job "))
+		return fmt.Errorf("the forest client is running not allow push a job %s", name)
 	}
 	if _, ok := client.jobs[name]; ok {
-		return errors.New(fmt.Sprintf("the job %s name exist!", name))
+		return fmt.Errorf("the job %s name exist", name)
 	}
 	client.jobs[name] = job
 
