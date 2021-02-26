@@ -41,7 +41,7 @@ func TestForestClient_Bootstrap(t *testing.T) {
 type EchoJob struct {
 }
 
-func (*EchoJob) execute(params string) (string, error) {
+func (*EchoJob) Execute(params string) (string, error) {
 
 	time.Sleep(time.Second * 5)
 	fmt.Println("参数:", params)

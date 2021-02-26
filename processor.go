@@ -116,7 +116,7 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 		return
 	}
 
-	result, err := job.execute(snapshot.Params)
+	result, err := job.Execute(snapshot.Params)
 	after := time.Now()
 	executeSnapshot.Status = JobExecuteSuccessStatus
 	executeSnapshot.Result = result

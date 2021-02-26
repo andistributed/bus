@@ -1,5 +1,5 @@
 package bus
 
 type Job interface {
-	execute(params string) (string, error)
+	Execute(params string) (string, error)
 }
