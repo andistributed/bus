@@ -18,7 +18,7 @@ type Etcd struct {
 }
 
 // NewEtcd create a etcd
-func NewEtcd(endpoints []string, timeout time.Duration) (etcd *Etcd, err error) {
+func NewEtcd(endpoints []string, timeout time.Duration, opts ...func(*clientv3.Config)) (etcd *Etcd, err error) {
 
 	var (
 		client *clientv3.Client
@@ -28,12 +28,14 @@ func NewEtcd(endpoints []string, timeout time.Duration) (etcd *Etcd, err error) 
 		Endpoints:   endpoints,
 		DialTimeout: timeout,
 	}
+	for _, opt := range opts {
+		opt(&conf)
+	}
 	if client, err = clientv3.New(conf); err != nil {
 		return
 	}
 
 	etcd = &Etcd{
-
 		endpoints: endpoints,
 		client:    client,
 		kv:        clientv3.NewKV(client),
@@ -45,7 +47,6 @@ func NewEtcd(endpoints []string, timeout time.Duration) (etcd *Etcd, err error) 
 
 // Get get value from a key
 func (etcd *Etcd) Get(key string) (value []byte, err error) {
-
 	var (
 		getResponse *clientv3.GetResponse
 	)
@@ -68,7 +69,6 @@ func (etcd *Etcd) Get(key string) (value []byte, err error) {
 
 // GetWithPrefixKey get values from prefixKey
 func (etcd *Etcd) GetWithPrefixKey(prefixKey string) (keys [][]byte, values [][]byte, err error) {
-
 	var (
 		getResponse *clientv3.GetResponse
 	)
@@ -97,7 +97,6 @@ func (etcd *Etcd) GetWithPrefixKey(prefixKey string) (keys [][]byte, values [][]
 
 // GetWithPrefixKeyLimit get values from prefixKey limit
 func (etcd *Etcd) GetWithPrefixKeyLimit(prefixKey string, limit int64) (keys [][]byte, values [][]byte, err error) {
-
 	var (
 		getResponse *clientv3.GetResponse
 	)
@@ -139,7 +138,6 @@ func (etcd *Etcd) Put(key, value string) (err error) {
 
 // PutNotExist put a key not exist
 func (etcd *Etcd) PutNotExist(key, value string) (success bool, oldValue []byte, err error) {
-
 	var (
 		txnResponse *clientv3.TxnResponse
 	)
@@ -278,7 +276,6 @@ func (etcd *Etcd) WatchWithPrefixKey(prefixKey string) (keyChangeEventResponse *
 
 // handle the key change event
 func (etcd *Etcd) handleKeyChangeEvent(event *clientv3.Event, events chan *KeyChangeEvent) {
-
 	changeEvent := &KeyChangeEvent{
 		Key: string(event.Kv.Key),
 	}
@@ -300,7 +297,6 @@ func (etcd *Etcd) handleKeyChangeEvent(event *clientv3.Event, events chan *KeyCh
 }
 
 func (etcd *Etcd) TxWithTTL(key, value string, ttl int64) (txResponse *TxResponse, err error) {
-
 	var (
 		txnResponse *clientv3.TxnResponse
 		leaseID     clientv3.LeaseID
