@@ -17,7 +17,7 @@ func startClient(myIP string) {
 	etcd, _ := bus.NewEtcd([]string{"127.0.0.1:2379"}, time.Second*10)
 	forestClient := bus.NewForestClient("trade", myIP, etcd)
 
-	forestClient.PushJob("com.busgo.cat.job.EchoJob", &EchoJob{})
+	forestClient.PushJob("test.job", &EchoJob{})
 	forestClient.Bootstrap()
 }
 
@@ -25,7 +25,7 @@ func startClient2(myIP string) {
 	etcd, _ := bus.NewEtcd([]string{"127.0.0.1:2379"}, time.Second*10)
 	forestClient := bus.NewForestClient("trade", myIP, etcd)
 
-	forestClient.PushJob("com.busgo.cat.job.EchoJob2", &EchoJob{})
+	forestClient.PushJob("test.job2", &EchoJob{})
 	forestClient.Bootstrap()
 }
 
