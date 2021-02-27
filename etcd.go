@@ -2,9 +2,9 @@ package bus
 
 import (
 	"context"
-	"log"
 	"time"
 
+	"github.com/admpub/log"
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/mvcc/mvccpb"
 )
@@ -237,7 +237,7 @@ func (etcd *Etcd) Watch(key string) (keyChangeEventResponse *WatchKeyChangeRespo
 		}
 
 	End:
-		log.Println("the watcher lose for key:", key)
+		log.Warn("the watcher lose for key: ", key)
 	}()
 
 	return
@@ -268,7 +268,7 @@ func (etcd *Etcd) WatchWithPrefixKey(prefixKey string) (keyChangeEventResponse *
 		}
 
 	End:
-		log.Println("the watcher lose for prefixKey:", prefixKey)
+		log.Warn("the watcher lose for prefixKey: ", prefixKey)
 	}()
 
 	return
@@ -376,7 +376,7 @@ func (etcd *Etcd) TxKeepaliveWithTTL(key, value string, ttl int64) (txResponse *
 		}
 
 	End:
-		log.Printf("the tx keepalive has lose key><----->:%s", key)
+		log.Warnf("the tx keepalive has lose key <-----> %s", key)
 		if txResponse.StateChan != nil {
 			txResponse.StateChan <- false
 		}

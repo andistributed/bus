@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"time"
+
+	"github.com/admpub/log"
 )
 
 const clientPathPrefix = "/forest/client/%s/clients/%s"
@@ -124,29 +125,29 @@ RETRY:
 	)
 
 	if client.state == RegistryState {
-		log.Printf("the forest client has already registry to:%s", client.clientPath)
+		log.Infof("the forest client has already registry to: %s", client.clientPath)
 		return
 	}
 	if txResponse, err = client.etcd.TxKeepaliveWithTTL(client.clientPath, client.ip, 10); err != nil {
-		log.Printf("the forest client fail registry to:%s", client.clientPath)
+		log.Warnf("the forest client fail registry to: %s", client.clientPath)
 		time.Sleep(time.Second * 3)
 		goto RETRY
 	}
 
 	if !txResponse.Success {
-		log.Printf("the forest client fail registry to:%s", client.clientPath)
+		log.Warnf("the forest client fail registry to: %s", client.clientPath)
 		time.Sleep(time.Second * 3)
 		goto RETRY
 	}
 
-	log.Printf("the forest client success registry to:%s", client.clientPath)
+	log.Infof("the forest client success registry to: %s", client.clientPath)
 	client.state = RegistryState
 	client.txResponse = txResponse
 
 	select {
 	case <-client.txResponse.StateChan:
 		client.state = URegistryState
-		log.Printf("the forest client fail registry to----->:%s", client.clientPath)
+		log.Warnf("the forest client fail registry to----->: %s", client.clientPath)
 		goto RETRY
 	}
 
@@ -160,8 +161,7 @@ func (client *ForestClient) lookup() {
 		keys, values, err := client.etcd.GetWithPrefixKeyLimit(client.snapshotPath, 50)
 
 		if err != nil {
-
-			log.Printf("the forest client load job snapshot error:%v", err)
+			log.Debugf("the forest client load job snapshot error: %v", err)
 			time.Sleep(time.Second * 3)
 			continue
 		}
@@ -172,7 +172,7 @@ func (client *ForestClient) lookup() {
 		}
 
 		if len(keys) == 0 || len(values) == 0 {
-			log.Printf("the forest client :%s load job snapshot is empty", client.clientPath)
+			log.Debugf("the forest client: %s load job snapshot is empty", client.clientPath)
 			time.Sleep(time.Second * 3)
 			continue
 		}
@@ -187,21 +187,20 @@ func (client *ForestClient) lookup() {
 			}
 
 			if err := client.etcd.Delete(string(key)); err != nil {
-				log.Printf("the forest client :%s delete job snapshot fail:%v", client.clientPath, err)
+				log.Debugf("the forest client: %s delete job snapshot fail: %v", client.clientPath, err)
 				continue
 			}
 
 			value := values[i]
 			if len(value) == 0 {
-				log.Printf("the forest client :%s found job snapshot value is nil ", client.clientPath)
+				log.Debugf("the forest client: %s found job snapshot value is nil", client.clientPath)
 				continue
 			}
 
 			snapshot := new(JobSnapshot)
 			err := json.Unmarshal(value, snapshot)
 			if err != nil {
-
-				log.Printf("the forest client :%s found job snapshot value is cant not parse the json value：%v ", client.clientPath, err)
+				log.Debugf("the forest client: %s found job snapshot value is cant not parse the json value：%v ", client.clientPath, err)
 				continue
 			}
 

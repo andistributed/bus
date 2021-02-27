@@ -3,6 +3,7 @@ module github.com/andistributed/bus
 go 1.12
 
 require (
+	github.com/admpub/log v0.0.1
 	github.com/coreos/bbolt v1.3.3 // indirect
 	github.com/coreos/etcd v3.3.13+incompatible
 	github.com/coreos/go-semver v0.3.0 // indirect
