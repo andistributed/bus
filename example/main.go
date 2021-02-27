@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/andistributed/bus"
+	"github.com/andistributed/etcd"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 }
 
 func startClient(myIP string) {
-	etcd, _ := bus.NewEtcd([]string{"127.0.0.1:2379"}, time.Second*10)
+	etcd, _ := etcd.New([]string{"127.0.0.1:2379"}, time.Second*10)
 	forestClient := bus.NewForestClient("trade", myIP, etcd)
 
 	forestClient.PushJob("test.job", &EchoJob{})
@@ -22,7 +23,7 @@ func startClient(myIP string) {
 }
 
 func startClient2(myIP string) {
-	etcd, _ := bus.NewEtcd([]string{"127.0.0.1:2379"}, time.Second*10)
+	etcd, _ := etcd.New([]string{"127.0.0.1:2379"}, time.Second*10)
 	forestClient := bus.NewForestClient("trade", myIP, etcd)
 
 	forestClient.PushJob("test.job2", &EchoJob{})

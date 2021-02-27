@@ -1,38 +1,13 @@
 package bus
 
 import (
-	"context"
 	"encoding/json"
 
-	"github.com/coreos/etcd/clientv3"
+	"github.com/andistributed/etcd/etcdresponse"
 )
-
-const (
-	KeyCreateChangeEvent = iota
-	KeyUpdateChangeEvent
-	KeyDeleteChangeEvent
-)
-
-// KeyChangeEvent key 变化事件
-type KeyChangeEvent struct {
-	Type  int
-	Key   string
-	Value []byte
-}
-
-// WatchKeyChangeResponse 监听key 变化响应
-type WatchKeyChangeResponse struct {
-	Event      chan *KeyChangeEvent
-	CancelFunc context.CancelFunc
-	Watcher    clientv3.Watcher
-}
 
 type TxResponse struct {
-	Success   bool
-	LeaseID   clientv3.LeaseID
-	Lease     clientv3.Lease
-	Key       string
-	Value     string
+	*etcdresponse.TxResponse
 	StateChan chan bool
 }
 

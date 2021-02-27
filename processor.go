@@ -6,6 +6,8 @@ import (
 	"log"
 	"sync"
 	"time"
+
+	"github.com/andistributed/etcd"
 )
 
 const jobSnapshotPrefix = "/forest/client/snapshot/%s/%s/"
@@ -23,7 +25,7 @@ const (
 )
 
 type JobSnapshotProcessor struct {
-	etcd                *Etcd
+	etcd                *etcd.Etcd
 	snapshotPath        string
 	snapshotExecutePath string
 	snapshots           chan *JobSnapshot
@@ -32,7 +34,7 @@ type JobSnapshotProcessor struct {
 }
 
 // NewJobSnapshotProcessor new a job snapshot processor
-func NewJobSnapshotProcessor(group, ip string, etcd *Etcd) *JobSnapshotProcessor {
+func NewJobSnapshotProcessor(group, ip string, etcd *etcd.Etcd) *JobSnapshotProcessor {
 
 	processor := &JobSnapshotProcessor{
 		etcd:      etcd,

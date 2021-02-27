@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/admpub/log"
+	"github.com/andistributed/etcd"
+	"github.com/andistributed/etcd/etcdresponse"
 )
 
 const clientPathPrefix = "/forest/client/%s/clients/%s"
@@ -16,22 +18,22 @@ const (
 )
 
 type ForestClient struct {
-	etcd         *Etcd
-	jobs         map[string]Job
-	group        string
-	ip           string
-	running      bool
-	quit         chan bool
-	state        int
-	clientPath   string
-	snapshotPath string
-	txResponse   *TxResponse
+	etcd               *etcd.Etcd
+	jobs               map[string]Job
+	group              string
+	ip                 string
+	running            bool
+	quit               chan bool
+	state              int
+	clientPath         string
+	snapshotPath       string
+	txResponseWithChan *etcdresponse.TxResponseWithChan
 
 	snapshotProcessor *JobSnapshotProcessor
 }
 
 // NewForestClient new a client
-func NewForestClient(group, ip string, etcd *Etcd) *ForestClient {
+func NewForestClient(group, ip string, etcd *etcd.Etcd) *ForestClient {
 
 	return &ForestClient{
 		etcd:  etcd,
@@ -120,7 +122,7 @@ func (client *ForestClient) registerNode() {
 
 RETRY:
 	var (
-		txResponse *TxResponse
+		txResponse *etcdresponse.TxResponseWithChan
 		err        error
 	)
 
@@ -128,7 +130,7 @@ RETRY:
 		log.Infof("the forest client has already registry to: %s", client.clientPath)
 		return
 	}
-	if txResponse, err = client.etcd.TxKeepaliveWithTTL(client.clientPath, client.ip, 10); err != nil {
+	if txResponse, err = client.etcd.TxKeepaliveWithTTLAndChan(client.clientPath, client.ip, 10); err != nil {
 		log.Warnf("the forest client fail registry to: %s", client.clientPath)
 		time.Sleep(time.Second * 3)
 		goto RETRY
@@ -142,10 +144,10 @@ RETRY:
 
 	log.Infof("the forest client success registry to: %s", client.clientPath)
 	client.state = RegistryState
-	client.txResponse = txResponse
+	client.txResponseWithChan = txResponse
 
 	select {
-	case <-client.txResponse.StateChan:
+	case <-client.txResponseWithChan.StateChan:
 		client.state = URegistryState
 		log.Warnf("the forest client fail registry to----->: %s", client.clientPath)
 		goto RETRY

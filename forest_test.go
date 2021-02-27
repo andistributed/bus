@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"github.com/andistributed/etcd"
 )
 
 /**
@@ -31,7 +33,7 @@ func TestNewForestClient(t *testing.T) {
 
 func TestForestClient_Bootstrap(t *testing.T) {
 
-	etcd, _ := NewEtcd([]string{"127.0.0.1:2379"}, time.Second*10)
+	etcd, _ := etcd.New([]string{"127.0.0.1:2379"}, time.Second*10)
 	forestClient := NewForestClient("trade", "127.0.0.1", etcd)
 
 	forestClient.PushJob("com.busgo.cat.job.EchoJob", &EchoJob{})
