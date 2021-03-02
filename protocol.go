@@ -2,14 +2,7 @@ package bus
 
 import (
 	"encoding/json"
-
-	"github.com/andistributed/etcd/etcdresponse"
 )
-
-type TxResponse struct {
-	*etcdresponse.TxResponse
-	StateChan chan bool
-}
 
 type JobSnapshot struct {
 	Id         string `json:"id"`

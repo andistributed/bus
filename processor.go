@@ -52,30 +52,22 @@ func NewJobSnapshotProcessor(group, ip string, etcd *etcd.Etcd) *JobSnapshotProc
 
 // lookup the job snapshot
 func (processor *JobSnapshotProcessor) lookup() {
-
 	for {
-
 		select {
 		case snapshot := <-processor.snapshots:
-
 			go processor.handleSnapshot(snapshot)
-
 		}
 	}
 }
 
 func (processor *JobSnapshotProcessor) pushJobSnapshot(snapshot *JobSnapshot) {
-
 	processor.snapshots <- snapshot
 }
 
 // handle the snapshot
 func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
-
 	target := snapshot.Target
-
 	now := time.Now()
-
 	executeSnapshot := &JobExecuteSnapshot{
 		Id:         snapshot.Id,
 		JobId:      snapshot.JobId,
@@ -94,7 +86,6 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 	}
 
 	if target == "" {
-
 		log.Printf("the snapshot:\n\t%v\ntarget is nil", snapshot)
 		executeSnapshot.Status = JobExecuteUkonwStatus
 		return
@@ -110,7 +101,7 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 
 	key := processor.snapshotExecutePath + executeSnapshot.Id
 	if err := processor.etcd.Put(key, string(value)); err != nil {
-		log.Printf("the snapshot:\n\t%v\nput snapshot execute fail:%v", executeSnapshot, err)
+		log.Printf("the snapshot:\n\t%v\nput snapshot execute fail: %v", executeSnapshot, err)
 		return
 	}
 
@@ -136,10 +127,9 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 	// store the execute job snapshot
 	value, _ = json.Marshal(executeSnapshot)
 	if err := processor.etcd.Put(key, string(value)); err != nil {
-		log.Printf("the snapshot:\n\t%v\nput update snapshot execute fail:%v", executeSnapshot, err)
+		log.Printf("the snapshot:\n\t%v\nput update snapshot execute fail: %v", executeSnapshot, err)
 		return
 	}
-
 }
 
 // PushJob push a job to job list
