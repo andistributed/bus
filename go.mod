@@ -4,6 +4,6 @@ go 1.12
 
 require (
 	github.com/admpub/log v0.2.0
-	github.com/andistributed/etcd v0.0.4
+	github.com/andistributed/etcd v0.1.0
 	go.etcd.io/bbolt v1.3.3 // indirect
 )
