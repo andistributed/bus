@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/admpub/log"
 	"github.com/andistributed/bus"
 	"github.com/andistributed/etcd"
 )
 
 func main() {
+	defer log.Close()
 	go startClient("127.0.0.1")
 	go startClient("127.0.0.2")
 	startClient("127.0.0.3")
