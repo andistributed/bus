@@ -28,22 +28,22 @@ func (s *JobSnapshot) String() string {
 }
 
 type JobExecuteSnapshot struct {
-	Id         string `json:"id" xorm:"pk"`
-	JobId      string `json:"jobId" xorm:"job_id"`
-	Name       string `json:"name" xorm:"name"`
-	Ip         string `json:"ip" xorm:"ip"`
-	Group      string `json:"group" xorm:"group"`
-	Cron       string `json:"cron" xorm:"cron"`
-	Target     string `json:"target" xorm:"target"`
-	Params     string `json:"params" xorm:"params"`
-	Mobile     string `json:"mobile" xorm:"mobile"`
-	Remark     string `json:"remark" xorm:"remark"`
-	CreateTime string `json:"createTime" xorm:"create_time"`
-	StartTime  string `json:"startTime" xorm:"start_time"`
-	FinishTime string `json:"finishTime" xorm:"finish_time"`
-	Times      int    `json:"times" xorm:"times"`
-	Status     int    `json:"status" xorm:"status"`
-	Result     string `json:"result" xorm:"result"`
+	Id         string `json:"id" db:"id"`
+	JobId      string `json:"jobId" db:"job_id"`
+	Name       string `json:"name" db:"name"`
+	Ip         string `json:"ip" db:"ip"`
+	Group      string `json:"group" db:"group"`
+	Cron       string `json:"cron" db:"cron"`
+	Target     string `json:"target" db:"target"`
+	Params     string `json:"params" db:"params"`
+	Mobile     string `json:"mobile" db:"mobile"`
+	Remark     string `json:"remark" db:"remark"`
+	CreateTime string `json:"createTime" db:"create_time"`
+	StartTime  string `json:"startTime" db:"start_time"`
+	FinishTime string `json:"finishTime" db:"finish_time"`
+	Times      int    `json:"times" db:"times"`
+	Status     int    `json:"status" db:"status"`
+	Result     string `json:"result" db:"result"`
 }
 
 func (s *JobExecuteSnapshot) AsJSON() []byte {
