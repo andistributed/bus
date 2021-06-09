@@ -17,7 +17,7 @@ const (
 	RegistryState
 )
 
-type ForestClient struct {
+type Client struct {
 	etcd               *etcd.Etcd
 	jobs               map[string]Job
 	group              string
@@ -28,36 +28,29 @@ type ForestClient struct {
 	clientPath         string
 	snapshotPath       string
 	txResponseWithChan *etcdresponse.TxResponseWithChan
-
-	snapshotProcessor *JobSnapshotProcessor
+	snapshotProcessor  *JobSnapshotProcessor
 }
 
-// NewForestClient new a client
-func NewForestClient(group, ip string, etcd *etcd.Etcd) *ForestClient {
-
-	return &ForestClient{
+// NewClient new a client
+func NewClient(group, ip string, etcd *etcd.Etcd) *Client {
+	return &Client{
 		etcd:  etcd,
 		group: group,
 		ip:    ip,
-		jobs:  make(map[string]Job, 0),
-		quit:  make(chan bool, 0),
+		jobs:  make(map[string]Job),
+		quit:  make(chan bool),
 		state: URegistryState,
 	}
-
 }
 
 // Bootstrap bootstrap client
-func (client *ForestClient) Bootstrap() (err error) {
-
+func (client *Client) Bootstrap() (err error) {
 	if err = client.validate(); err != nil {
 		return err
 	}
-
 	client.clientPath = fmt.Sprintf(clientPathPrefix, client.group, client.ip)
 	client.snapshotPath = fmt.Sprintf(jobSnapshotPrefix, client.group, client.ip)
-
 	client.snapshotProcessor = NewJobSnapshotProcessor(client.group, client.ip, client.etcd)
-
 	client.addJobs()
 
 	go client.registerNode()
@@ -70,43 +63,36 @@ func (client *ForestClient) Bootstrap() (err error) {
 }
 
 // Stop stop client
-func (client *ForestClient) Stop() {
+func (client *Client) Stop() {
 	if client.running {
 		client.quit <- true
 	}
-
-	return
 }
 
 // add jobs
-func (client *ForestClient) addJobs() {
-
+func (client *Client) addJobs() {
 	if len(client.jobs) == 0 {
 		return
 	}
-
 	for name, job := range client.jobs {
-
 		client.snapshotProcessor.PushJob(name, job)
 	}
 }
 
 // pre validate params
-func (client *ForestClient) validate() (err error) {
-
+func (client *Client) validate() error {
 	if client.ip == "" {
-		return errors.New(fmt.Sprint("ip not allow null"))
+		return errors.New("ip not allow null")
 	}
 
 	if client.group == "" {
-		return errors.New(fmt.Sprint("group not allow null"))
+		return errors.New("group not allow null")
 	}
-	return
+	return nil
 }
 
 // PushJob push a new job to job list
-func (client ForestClient) PushJob(name string, job Job) (err error) {
-
+func (client Client) PushJob(name string, job Job) error {
 	if client.running {
 		return fmt.Errorf("the forest client is running not allow push a job %s", name)
 	}
@@ -114,11 +100,10 @@ func (client ForestClient) PushJob(name string, job Job) (err error) {
 		return fmt.Errorf("the job %s name exist", name)
 	}
 	client.jobs[name] = job
-
-	return
+	return nil
 }
 
-func (client *ForestClient) registerNode() {
+func (client *Client) registerNode() {
 
 RETRY:
 	var (
@@ -156,12 +141,10 @@ RETRY:
 }
 
 // look up
-func (client *ForestClient) lookup() {
+func (client *Client) lookup() {
 
 	for {
-
 		keys, values, err := client.etcd.GetWithPrefixKeyLimit(client.snapshotPath, 50)
-
 		if err != nil {
 			log.Debugf("the forest client load job snapshot error: %v", err)
 			time.Sleep(time.Second * 3)
@@ -180,9 +163,7 @@ func (client *ForestClient) lookup() {
 		}
 
 		for i := 0; i < len(values); i++ {
-
 			key := keys[i]
-
 			if client.state == URegistryState {
 				time.Sleep(time.Second * 3)
 				break
@@ -208,8 +189,6 @@ func (client *ForestClient) lookup() {
 
 			// push a job snapshot
 			client.snapshotProcessor.pushJobSnapshot(snapshot)
-
 		}
-
 	}
 }

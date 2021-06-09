@@ -10,7 +10,6 @@ import (
 
 /**
  * json :
-
   {
   "createTime": "2019-12-24 17:43:04",
   "cron": "0 0 * * * ?",
@@ -24,27 +23,26 @@ import (
   "remark": "备注",
   "target": "com.busgo.cat.job.EchoJob"
 }
-
-
 */
-func TestNewForestClient(t *testing.T) {
+func TestNewClient(t *testing.T) {
 
 }
 
-func TestForestClient_Bootstrap(t *testing.T) {
+func TestClient_Bootstrap(t *testing.T) {
+	etcd, err := etcd.New([]string{"127.0.0.1:2379"}, time.Second*10)
+	if err != nil {
+		panic(err)
+	}
+	client := NewClient("trade", "127.0.0.1", etcd)
 
-	etcd, _ := etcd.New([]string{"127.0.0.1:2379"}, time.Second*10)
-	forestClient := NewForestClient("trade", "127.0.0.1", etcd)
-
-	forestClient.PushJob("com.busgo.cat.job.EchoJob", &EchoJob{})
-	forestClient.Bootstrap()
+	client.PushJob("com.busgo.cat.job.EchoJob", &EchoJob{})
+	client.Bootstrap()
 }
 
 type EchoJob struct {
 }
 
 func (*EchoJob) Execute(params string) (string, error) {
-
 	time.Sleep(time.Second * 5)
 	fmt.Println("参数:", params)
 	return "ok", nil

@@ -33,10 +33,10 @@ func (*EchoJob) Execute(params string) (string, error) {
 
 
 etcd, _ := NewEtcd([]string{"127.0.0.1:2379"}, time.Second*10)
-	forestClient := NewForestClient("trade", "127.0.0.1", etcd)
+	Client := NewClient("trade", "127.0.0.1", etcd)
 
-	forestClient.PushJob("com.busgo.cat.job.EchoJob",&EchoJob{})
-	forestClient.Bootstrap()
+	Client.PushJob("com.busgo.cat.job.EchoJob",&EchoJob{})
+	Client.Bootstrap()
 	
 
 
@@ -46,7 +46,7 @@ etcd, _ := NewEtcd([]string{"127.0.0.1:2379"}, time.Second*10)
 
 ```shell
 
-=== RUN   TestForestClient_Bootstrap
+=== RUN   TestClient_Bootstrap
 2019/12/24 17:41:51 the forest client success registry to:/forest/client/trade/clients/127.0.0.1
 
 ```
