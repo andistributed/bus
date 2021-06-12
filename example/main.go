@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	log.SetLevel(`Info`)
 	defer log.Close()
 	go startClient("127.0.0.1")
 	go startClient2("127.0.0.2")

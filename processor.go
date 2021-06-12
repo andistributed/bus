@@ -84,21 +84,27 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 		Times:      0,
 	}
 
+	var errResult error
 	if target == "" {
-		log.Errorf("the snapshot:\n\t%v\ntarget is nil\n", snapshot)
-		executeSnapshot.Status = JobExecuteUnknownStatus
-		return
-	}
-
-	job, ok := processor.jobs[target]
-	if !ok || job == nil {
-		log.Errorf("the snapshot:\n\t%v\ntarget %s is not found in the job list\n", snapshot, snapshot.Target)
+		errResult = fmt.Errorf("the snapshot: %#v target is nil", snapshot)
+		log.Error(errResult)
+		executeSnapshot.Result = errResult.Error()
 		executeSnapshot.Status = JobExecuteUnknownStatus
 	}
-
+	var job Job
+	if errResult == nil {
+		var ok bool
+		job, ok = processor.jobs[target]
+		if !ok || job == nil {
+			errResult = fmt.Errorf("the snapshot: %#v target %s is not found in the job list", snapshot, snapshot.Target)
+			log.Error(errResult)
+			executeSnapshot.Result = errResult.Error()
+			executeSnapshot.Status = JobExecuteUnknownStatus
+		}
+	}
 	value, err := json.Marshal(executeSnapshot)
 	if err != nil {
-		log.Errorf("[1] json.Marshal(executeSnapshot) %+v: %s", executeSnapshot, err.Error())
+		log.Errorf("[1] json.Marshal(executeSnapshot) %#v: %s", executeSnapshot, err.Error())
 		return
 	}
 
@@ -126,12 +132,12 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 	times := duration / time.Second
 	executeSnapshot.Times = int(times)
 	executeSnapshot.FinishTime = after.Format("2006-01-02 15:04:05")
-	log.Debugf("the execute snapshot:\n\t%v\nexecute success", executeSnapshot)
+	log.Debugf("the execute snapshot: %#v execute success", executeSnapshot)
 
 	// store the execute job snapshot
 	value, err = json.Marshal(executeSnapshot)
 	if err != nil {
-		log.Errorf("[2] json.Marshal(executeSnapshot) %+v: %s", executeSnapshot, err.Error())
+		log.Errorf("[2] json.Marshal(executeSnapshot) %#v: %s", executeSnapshot, err.Error())
 		return
 	}
 	if err := processor.etcd.Put(key, string(value)); err != nil {
@@ -145,7 +151,7 @@ func (processor *JobSnapshotProcessor) PushJob(name string, job Job) {
 	processor.lk.Lock()
 	defer processor.lk.Unlock()
 	if _, ok := processor.jobs[name]; ok {
-		log.Warnf("the job %s: %v has exist!", name, job)
+		log.Errorf("the job %s: %v has exist!", name, job)
 		return
 	}
 	processor.jobs[name] = job
