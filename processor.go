@@ -10,10 +10,12 @@ import (
 
 	"github.com/admpub/log"
 	"github.com/andistributed/etcd"
+	"github.com/andistributed/etcd/etcdevent"
 )
 
 const jobSnapshotPrefix = "/forest/client/snapshot/%s/%s/"                // %s:client.group %s:client.ip
 const jobExecuteSnapshotPrefix = "/forest/client/execute/snapshot/%s/%s/" // %s:client.group %s:client.ip
+const jobKillerPrefix = "/forest/client/killer/snapshot/%s/%s/"           // %s:client.group %s:client.ip  +snapshot.id
 
 const (
 	// JobExecuteDoingStatus 执行中
@@ -30,6 +32,7 @@ type JobSnapshotProcessor struct {
 	etcd                *etcd.Etcd
 	snapshotPath        string
 	snapshotExecutePath string
+	snapshotKillerPath  string
 	snapshots           chan *JobSnapshot
 	jobs                map[string]Job
 	jobSessions         *JobSessions
@@ -47,7 +50,9 @@ func NewJobSnapshotProcessor(group, ip string, etcd *etcd.Etcd) *JobSnapshotProc
 	}
 	processor.snapshotPath = fmt.Sprintf(jobSnapshotPrefix, group, ip)
 	processor.snapshotExecutePath = fmt.Sprintf(jobExecuteSnapshotPrefix, group, ip)
+	processor.snapshotKillerPath = fmt.Sprintf(jobKillerPrefix, group, ip)
 	go processor.lookup()
+	go processor.watchKiller()
 	return processor
 }
 
@@ -157,6 +162,29 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 	if err := processor.etcd.Put(key, string(value)); err != nil {
 		log.Errorf("the snapshot:\n\t%v\nput update snapshot execute fail: %v", executeSnapshot, err)
 		return
+	}
+}
+
+func (processor *JobSnapshotProcessor) cancelExecute(snapshotId string) {
+	processor.jobSessions.Cancel(snapshotId)
+}
+
+func (processor *JobSnapshotProcessor) watchKiller() {
+	keyChangeEventResponse := processor.etcd.WatchWithPrefixKey(processor.snapshotKillerPath)
+	for ch := range keyChangeEventResponse.Event {
+		switch ch.Type {
+		case etcdevent.KeyCreateChangeEvent:
+		case etcdevent.KeyUpdateChangeEvent:
+			log.Infof("kill job snapshot %+v", ch)
+			key := string(ch.Key)
+			p := strings.LastIndex(key, `/`)
+			snapshotId := key[p+1:]
+			processor.cancelExecute(snapshotId)
+			if err := processor.etcd.Delete(key); err != nil {
+				log.Errorf(`kill job snapshot failed: %s: %s`, key, err.Error())
+			}
+		case etcdevent.KeyDeleteChangeEvent:
+		}
 	}
 }
 

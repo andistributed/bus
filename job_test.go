@@ -7,7 +7,7 @@ import (
 )
 
 func TestJobCancel(t *testing.T) {
-	job := NewJobSession(&EchoJob{Sleep: 5})
+	job := NewJobSession(&EchoJob{Sleep: time.Second * 5})
 	go func() {
 		result, err := job.Execute(`test`)
 		if err != nil {

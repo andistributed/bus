@@ -25,7 +25,7 @@ func startClient(myIP string) {
 	}
 	client := bus.NewClient("trade", myIP, etcd)
 
-	client.PushJob("example.job", &EchoJob{})
+	client.PushJob("example.job", &EchoJob{}) // 注意：请确保job名称必须要在group内的所以机器上都存在
 	client.Bootstrap()
 }
 
@@ -36,7 +36,7 @@ func startClient2(myIP string) {
 	}
 	client := bus.NewClient("trade", myIP, etcd)
 
-	client.PushJob("example.job2", &EchoJob{})
+	client.PushJob("example.job", &EchoJob{})
 	client.Bootstrap()
 }
 

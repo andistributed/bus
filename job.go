@@ -3,7 +3,6 @@ package bus
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 )
 
@@ -45,6 +44,7 @@ func (s *JobSessions) Cancel(snapshotId string) {
 	session, ok := s.sessions[snapshotId]
 	if ok {
 		session.Cancel()
+		delete(s.sessions, snapshotId)
 	}
 	s.lock.RUnlock()
 }
@@ -68,11 +68,9 @@ func (j JobWithCancel) Execute(params string) (r string, err error) {
 	for {
 		select {
 		case <-j.ctx.Done():
-			fmt.Println(`ErrJobCancelled______________________`)
 			err = ErrJobCancelled
 			return
 		default:
-			fmt.Println(`Execute______________________`)
 			r, err = j.job.Execute(j.ctx, params)
 			j.cancel()
 			return
