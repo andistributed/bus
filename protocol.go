@@ -2,6 +2,7 @@ package bus
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 type JobSnapshot struct {
@@ -25,6 +26,10 @@ func (s *JobSnapshot) AsJSON() []byte {
 
 func (s *JobSnapshot) String() string {
 	return string(s.AsJSON())
+}
+
+func (s *JobSnapshot) Path() string {
+	return fmt.Sprintf(jobSnapshotPrefix, s.Group, s.Ip)
 }
 
 type JobExecuteSnapshot struct {
@@ -53,4 +58,8 @@ func (s *JobExecuteSnapshot) AsJSON() []byte {
 
 func (s *JobExecuteSnapshot) String() string {
 	return string(s.AsJSON())
+}
+
+func (s *JobExecuteSnapshot) Path() string {
+	return fmt.Sprintf(jobExecuteSnapshotPrefix, s.Group, s.Ip)
 }
