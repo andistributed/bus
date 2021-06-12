@@ -10,8 +10,8 @@ import (
 	"github.com/andistributed/etcd"
 )
 
-const jobSnapshotPrefix = "/forest/client/snapshot/%s/%s/"
-const jobExecuteSnapshotPrefix = "/forest/client/execute/snapshot/%s/%s/"
+const jobSnapshotPrefix = "/forest/client/snapshot/%s/%s/"                // %s:client.group %s:client.ip
+const jobExecuteSnapshotPrefix = "/forest/client/execute/snapshot/%s/%s/" // %s:client.group %s:client.ip
 
 const (
 	// JobExecuteDoingStatus 执行中

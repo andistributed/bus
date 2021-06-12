@@ -11,7 +11,7 @@ import (
 	"github.com/andistributed/etcd/etcdresponse"
 )
 
-const clientPathPrefix = "/forest/client/%s/clients/%s"
+const clientPathPrefix = "/forest/client/%s/clients/%s" // %s:client.group %s:client.ip
 const (
 	UnregisterdState = iota
 	RegisterdState
