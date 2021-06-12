@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -23,7 +24,7 @@ func startClient(myIP string) {
 	}
 	client := bus.NewClient("trade", myIP, etcd)
 
-	client.PushJob("test.job", &EchoJob{})
+	client.PushJob("example.job", &EchoJob{})
 	client.Bootstrap()
 }
 
@@ -34,14 +35,14 @@ func startClient2(myIP string) {
 	}
 	client := bus.NewClient("trade", myIP, etcd)
 
-	client.PushJob("test.job2", &EchoJob{})
+	client.PushJob("example.job2", &EchoJob{})
 	client.Bootstrap()
 }
 
 type EchoJob struct {
 }
 
-func (*EchoJob) Execute(params string) (string, error) {
+func (*EchoJob) Execute(ctx context.Context, params string) (string, error) {
 	time.Sleep(time.Second * 5)
 	fmt.Println("参数:", params)
 	return "ok", nil

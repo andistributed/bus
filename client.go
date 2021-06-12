@@ -13,8 +13,8 @@ import (
 
 const clientPathPrefix = "/forest/client/%s/clients/%s"
 const (
-	URegistryState = iota
-	RegistryState
+	UnregisterdState = iota
+	RegisterdState
 )
 
 type Client struct {
@@ -39,7 +39,7 @@ func NewClient(group, ip string, etcd *etcd.Etcd) *Client {
 		ip:    ip,
 		jobs:  make(map[string]Job),
 		quit:  make(chan bool),
-		state: URegistryState,
+		state: UnregisterdState,
 	}
 }
 
@@ -67,6 +67,10 @@ func (client *Client) Stop() {
 	if client.running {
 		client.quit <- true
 	}
+}
+
+func (client *Client) IsRunning() bool {
+	return client.running
 }
 
 // add jobs
@@ -111,7 +115,7 @@ RETRY:
 		err        error
 	)
 
-	if client.state == RegistryState {
+	if client.state == RegisterdState {
 		log.Infof("the forest client has already registry to: %s", client.clientPath)
 		return
 	}
@@ -128,12 +132,12 @@ RETRY:
 	}
 
 	log.Infof("the forest client success registry to: %s", client.clientPath)
-	client.state = RegistryState
+	client.state = RegisterdState
 	client.txResponseWithChan = txResponse
 
 	select {
 	case <-client.txResponseWithChan.StateChan:
-		client.state = URegistryState
+		client.state = UnregisterdState
 		log.Warnf("the forest client fail registry to----->: %s", client.clientPath)
 		goto RETRY
 	}
@@ -146,44 +150,44 @@ func (client *Client) lookup() {
 	for {
 		keys, values, err := client.etcd.GetWithPrefixKeyLimit(client.snapshotPath, 50)
 		if err != nil {
-			log.Debugf("the forest client load job snapshot error: %v", err)
+			log.Debugf("the forest client load job snapshot %s error: %v", client.snapshotPath, err)
 			time.Sleep(time.Second * 3)
 			continue
 		}
 
-		if client.state == URegistryState {
+		if client.state == UnregisterdState {
 			time.Sleep(time.Second * 3)
 			continue
 		}
 
 		if len(keys) == 0 || len(values) == 0 {
-			log.Debugf("the forest client: %s load job snapshot is empty", client.clientPath)
+			log.Debugf("the forest client: %s load job snapshot %s is empty", client.clientPath, client.snapshotPath)
 			time.Sleep(time.Second * 3)
 			continue
 		}
 
 		for i := 0; i < len(values); i++ {
 			key := keys[i]
-			if client.state == URegistryState {
+			if client.state == UnregisterdState {
 				time.Sleep(time.Second * 3)
 				break
 			}
 
 			if err := client.etcd.Delete(string(key)); err != nil {
-				log.Debugf("the forest client: %s delete job snapshot fail: %v", client.clientPath, err)
+				log.Debugf("the forest client: %s delete job snapshot %s fail: %v", client.clientPath, client.snapshotPath, err)
 				continue
 			}
 
 			value := values[i]
 			if len(value) == 0 {
-				log.Debugf("the forest client: %s found job snapshot value is nil", client.clientPath)
+				log.Debugf("the forest client: %s found job snapshot %s value is nil", client.clientPath, client.snapshotPath)
 				continue
 			}
 
 			snapshot := new(JobSnapshot)
 			err := json.Unmarshal(value, snapshot)
 			if err != nil {
-				log.Debugf("the forest client: %s found job snapshot value is cant not parse the json value：%v ", client.clientPath, err)
+				log.Debugf("the forest client: %s found job snapshot %s value is can not parse the json value: %v ", client.clientPath, client.snapshotPath, err)
 				continue
 			}
 

@@ -33,10 +33,10 @@ func (*EchoJob) Execute(params string) (string, error) {
 
 
 etcd, _ := NewEtcd([]string{"127.0.0.1:2379"}, time.Second*10)
-	Client := NewClient("trade", "127.0.0.1", etcd)
+	client := NewClient("trade", "127.0.0.1", etcd)
 
-	Client.PushJob("com.busgo.cat.job.EchoJob",&EchoJob{})
-	Client.Bootstrap()
+	client.PushJob("com.busgo.cat.job.EchoJob",&EchoJob{})
+	client.Bootstrap()
 	
 
 
