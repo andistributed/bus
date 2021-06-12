@@ -88,7 +88,7 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 	if target == "" {
 		errResult = fmt.Errorf("the snapshot: %#v target is nil", snapshot)
 		log.Error(errResult)
-		executeSnapshot.Result = errResult.Error()
+		executeSnapshot.Result = `target is nil`
 		executeSnapshot.Status = JobExecuteUnknownStatus
 	}
 	var job Job
@@ -98,7 +98,7 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 		if !ok || job == nil {
 			errResult = fmt.Errorf("the snapshot: %#v target %s is not found in the job list", snapshot, snapshot.Target)
 			log.Error(errResult)
-			executeSnapshot.Result = errResult.Error()
+			executeSnapshot.Result = `target "` + snapshot.Target + `" is not found in the job list`
 			executeSnapshot.Status = JobExecuteUnknownStatus
 		}
 	}
