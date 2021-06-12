@@ -3,6 +3,8 @@ package bus
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -63,6 +65,17 @@ func (processor *JobSnapshotProcessor) pushJobSnapshot(snapshot *JobSnapshot) {
 	processor.snapshots <- snapshot
 }
 
+func (processor *JobSnapshotProcessor) targetList() []string {
+	targets := make([]string, len(processor.jobs))
+	var i int
+	for target := range processor.jobs {
+		targets[i] = target
+		i++
+	}
+	sort.Strings(targets)
+	return targets
+}
+
 // handle the snapshot
 func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 	target := snapshot.Target
@@ -96,9 +109,10 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 		var ok bool
 		job, ok = processor.jobs[target]
 		if !ok || job == nil {
-			errResult = fmt.Errorf("the snapshot: %#v target %s is not found in the job list", snapshot, snapshot.Target)
+			targets := processor.targetList()
+			errResult = fmt.Errorf("the snapshot: %#v target %s is not found in the job list %v", snapshot, snapshot.Target, targets)
 			log.Error(errResult)
-			executeSnapshot.Result = `target "` + snapshot.Target + `" is not found in the job list`
+			executeSnapshot.Result = `target "` + snapshot.Target + `" is not found in the job list [` + strings.Join(targets, `, `) + `]`
 			executeSnapshot.Status = JobExecuteUnknownStatus
 		}
 	}
