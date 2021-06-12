@@ -40,13 +40,13 @@ func (s *JobSessions) Done(snapshotId string) {
 }
 
 func (s *JobSessions) Cancel(snapshotId string) {
-	s.lock.RLock()
+	s.lock.Lock()
 	session, ok := s.sessions[snapshotId]
 	if ok {
 		session.Cancel()
 		delete(s.sessions, snapshotId)
 	}
-	s.lock.RUnlock()
+	s.lock.Unlock()
 }
 
 type JobSession interface {
