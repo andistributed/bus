@@ -11,7 +11,11 @@ import (
 	"github.com/andistributed/etcd/etcdresponse"
 )
 
-const clientPathPrefix = "/forest/client/%s/clients/%s" // %s:client.group %s:client.ip
+const (
+	clientPathPrefix  = "/forest/client/%s/clients/%s" // %s:client.group %s:client.ip
+	jobInfoPathPrefix = "/forest/client/%s/jobs/%s"    // %s:client.group jobName
+)
+
 const (
 	UnregisterdState = iota
 	RegisterdState
@@ -166,8 +170,8 @@ func (client *Client) lookup() {
 			continue
 		}
 
-		for i := 0; i < len(values); i++ {
-			key := keys[i]
+		for index, value := range values {
+			key := keys[index]
 			if client.state == UnregisterdState {
 				time.Sleep(time.Second * 3)
 				break
@@ -178,7 +182,6 @@ func (client *Client) lookup() {
 				continue
 			}
 
-			value := values[i]
 			if len(value) == 0 {
 				log.Debugf("the forest client: %s found job snapshot %s value is nil", client.clientPath, client.snapshotPath)
 				continue
