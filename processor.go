@@ -103,7 +103,7 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 	}
 
 	var errResult error
-	if target == "" {
+	if len(target) == 0 {
 		errResult = fmt.Errorf("the snapshot: %#v target is nil", snapshot)
 		log.Error(errResult)
 		executeSnapshot.Result = `target is nil`

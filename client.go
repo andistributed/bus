@@ -89,11 +89,11 @@ func (client *Client) addJobs() {
 
 // pre validate params
 func (client *Client) validate() error {
-	if client.ip == "" {
+	if len(client.ip) == 0 {
 		return errors.New("ip not allow null")
 	}
 
-	if client.group == "" {
+	if len(client.group) == 0 {
 		return errors.New("group not allow null")
 	}
 	return nil
