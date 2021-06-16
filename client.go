@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	clientPathPrefix  = "/forest/client/%s/clients/%s" // %s:client.group %s:client.ip
-	jobInfoPathPrefix = "/forest/client/%s/jobs/%s"    // %s:client.group jobName
+	clientPathPrefix  = "/forest/client/%s/clients/%s"  // %s:client.group %s:client.ip
+	jobInfoPathPrefix = "/forest/client/%s/jobs/%%s/%s" // %s:client.group %s:jobName %s:client.ip
 )
 
 const (
@@ -31,6 +31,7 @@ type Client struct {
 	state              int
 	clientPath         string
 	snapshotPath       string
+	jobClientPath      string
 	txResponseWithChan *etcdresponse.TxResponseWithChan
 	snapshotProcessor  *JobSnapshotProcessor
 }
@@ -54,6 +55,7 @@ func (client *Client) Bootstrap() (err error) {
 	}
 	client.clientPath = fmt.Sprintf(clientPathPrefix, client.group, client.ip)
 	client.snapshotPath = fmt.Sprintf(jobSnapshotPrefix, client.group, client.ip)
+	client.jobClientPath = fmt.Sprintf(jobInfoPathPrefix, client.group, client.ip)
 	client.snapshotProcessor = NewJobSnapshotProcessor(client.group, client.ip, client.etcd)
 	client.addJobs()
 
