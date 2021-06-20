@@ -144,6 +144,7 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 	executeSnapshot.Result = result
 	if err != nil {
 		executeSnapshot.Status = JobExecuteErrorStatus
+		executeSnapshot.Result += `(error: ` + err.Error() + `)`
 	}
 
 	duration := after.Sub(now)
