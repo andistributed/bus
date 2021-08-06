@@ -14,7 +14,6 @@ type JobSnapshot struct {
 	Cron       string `json:"cron"`
 	Target     string `json:"target"`
 	Params     string `json:"params"`
-	Mobile     string `json:"mobile"`
 	Remark     string `json:"remark"`
 	CreateTime string `json:"createTime"`
 }
@@ -41,7 +40,6 @@ type JobExecuteSnapshot struct {
 	Cron       string `json:"cron" db:"cron"`
 	Target     string `json:"target" db:"target"`
 	Params     string `json:"params" db:"params"`
-	Mobile     string `json:"mobile" db:"mobile"`
 	Remark     string `json:"remark" db:"remark"`
 	CreateTime string `json:"createTime" db:"create_time"`
 	StartTime  string `json:"startTime" db:"start_time"`

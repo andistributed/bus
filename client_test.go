@@ -21,7 +21,6 @@ var testSnapshot = JobSnapshot{
 	Group:      `trade`,
 	Id:         forest.GenerateSerialNo(),
 	Ip:         `127.0.0.8`,
-	Mobile:     ``,
 	Name:       `第一个任务`,
 	Params:     `我是参数`,
 	Remark:     `我是备注`,

@@ -97,7 +97,6 @@ func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 		Status:     JobExecuteDoingStatus,
 		CreateTime: snapshot.CreateTime,
 		Remark:     snapshot.Remark,
-		Mobile:     snapshot.Mobile,
 		StartTime:  now.Format("2006-01-02 15:04:05"),
 		Times:      0,
 	}
