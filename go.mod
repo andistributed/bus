@@ -4,7 +4,7 @@ go 1.12
 
 require (
 	github.com/admpub/log v1.3.2
-	github.com/andistributed/etcd v0.2.8
-	github.com/andistributed/forest v0.3.8
-	github.com/webx-top/com v0.3.6
+	github.com/andistributed/etcd v0.2.11
+	github.com/andistributed/forest v0.3.10
+	github.com/webx-top/com v0.4.0
 )
