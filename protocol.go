@@ -13,6 +13,7 @@ type JobSnapshot struct {
 	Group      string `json:"group"`
 	Cron       string `json:"cron"`
 	Target     string `json:"target"`
+	TargetType string `json:"targetType"`
 	Params     string `json:"params"`
 	Remark     string `json:"remark"`
 	CreateTime string `json:"createTime"`
@@ -31,6 +32,25 @@ func (s *JobSnapshot) Path() string {
 	return fmt.Sprintf(jobSnapshotPrefix, s.Group, s.Ip)
 }
 
+func (s *JobSnapshot) NewExecuteSnapshot() *JobExecuteSnapshot {
+	return &JobExecuteSnapshot{
+		Id:         s.Id,
+		JobId:      s.JobId,
+		Name:       s.Name,
+		Group:      s.Group,
+		Ip:         s.Ip,
+		Cron:       s.Cron,
+		Target:     s.Target,
+		TargetType: s.TargetType,
+		Params:     s.Params,
+		Status:     JobExecuteDoingStatus,
+		CreateTime: s.CreateTime,
+		Remark:     s.Remark,
+		//StartTime:  now.Format("2006-01-02 15:04:05"),
+		Times: 0,
+	}
+}
+
 type JobExecuteSnapshot struct {
 	Id         string `json:"id" db:"id"`
 	JobId      string `json:"jobId" db:"job_id"`
@@ -39,6 +59,7 @@ type JobExecuteSnapshot struct {
 	Group      string `json:"group" db:"group"`
 	Cron       string `json:"cron" db:"cron"`
 	Target     string `json:"target" db:"target"`
+	TargetType string `json:"targetType" db:"target_type"`
 	Params     string `json:"params" db:"params"`
 	Remark     string `json:"remark" db:"remark"`
 	CreateTime string `json:"createTime" db:"create_time"`

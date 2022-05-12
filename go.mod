@@ -2,6 +2,8 @@ module github.com/andistributed/bus
 
 go 1.12
 
+replace github.com/andistributed/forest => ../forest
+
 require (
 	github.com/admpub/log v1.3.2
 	github.com/andistributed/etcd v0.2.11

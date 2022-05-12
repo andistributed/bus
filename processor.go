@@ -85,21 +85,8 @@ func (processor *JobSnapshotProcessor) targetList() []string {
 func (processor *JobSnapshotProcessor) handleSnapshot(snapshot *JobSnapshot) {
 	target := snapshot.Target
 	now := time.Now()
-	executeSnapshot := &JobExecuteSnapshot{
-		Id:         snapshot.Id,
-		JobId:      snapshot.JobId,
-		Name:       snapshot.Name,
-		Group:      snapshot.Group,
-		Ip:         snapshot.Ip,
-		Cron:       snapshot.Cron,
-		Target:     snapshot.Target,
-		Params:     snapshot.Params,
-		Status:     JobExecuteDoingStatus,
-		CreateTime: snapshot.CreateTime,
-		Remark:     snapshot.Remark,
-		StartTime:  now.Format("2006-01-02 15:04:05"),
-		Times:      0,
-	}
+	executeSnapshot := snapshot.NewExecuteSnapshot()
+	executeSnapshot.StartTime = now.Format("2006-01-02 15:04:05")
 
 	var errResult error
 	if len(target) == 0 {

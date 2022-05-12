@@ -17,8 +17,8 @@ const (
 )
 
 const (
-	UnregisterdState = iota
-	RegisterdState
+	UnregisteredState = iota
+	RegisteredState
 )
 
 type Client struct {
@@ -38,14 +38,16 @@ type Client struct {
 
 // NewClient new a client
 func NewClient(group, ip string, etcd *etcd.Etcd) *Client {
-	return &Client{
+	c := &Client{
 		etcd:  etcd,
 		group: group,
 		ip:    ip,
 		jobs:  make(map[string]Job),
 		quit:  make(chan bool),
-		state: UnregisterdState,
+		state: UnregisteredState,
 	}
+	c.PushJob("cmd", DefaultCmdJob)
+	return c
 }
 
 // Bootstrap bootstrap client
@@ -121,7 +123,7 @@ RETRY:
 		err        error
 	)
 
-	if client.state == RegisterdState {
+	if client.state == RegisteredState {
 		log.Infof("the forest client has already registry to: %s", client.clientPath)
 		return
 	}
@@ -138,12 +140,12 @@ RETRY:
 	}
 
 	log.Infof("the forest client success registry to: %s", client.clientPath)
-	client.state = RegisterdState
+	client.state = RegisteredState
 	client.txResponseWithChan = txResponse
 
 	select {
 	case <-client.txResponseWithChan.StateChan:
-		client.state = UnregisterdState
+		client.state = UnregisteredState
 		log.Warnf("the forest client fail registry to----->: %s", client.clientPath)
 		goto RETRY
 	}
@@ -161,7 +163,7 @@ func (client *Client) lookup() {
 			continue
 		}
 
-		if client.state == UnregisterdState {
+		if client.state == UnregisteredState {
 			time.Sleep(time.Second * 3)
 			continue
 		}
@@ -174,7 +176,7 @@ func (client *Client) lookup() {
 
 		for index, value := range values {
 			key := keys[index]
-			if client.state == UnregisterdState {
+			if client.state == UnregisteredState {
 				time.Sleep(time.Second * 3)
 				break
 			}
