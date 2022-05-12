@@ -36,9 +36,9 @@ type CmdJob struct {
 }
 
 type CmdParam struct {
-	Command  string   `json:"command"`
-	Workdir  string   `json:"workdir"`
-	Environs []string `json:"environs"`
+	Command string   `json:"command"`
+	Workdir string   `json:"workdir"`
+	Env     []string `json:"env"`
 }
 
 func (c *CmdJob) Execute(ctx context.Context, params string) (string, error) {
@@ -53,7 +53,7 @@ func (c *CmdJob) Execute(ctx context.Context, params string) (string, error) {
 	cParams := CmdParams(p.Command)
 	cmd := exec.Command(cParams[0], cParams[1:]...)
 	cmd.Dir = p.Workdir
-	cmd.Env = append(os.Environ(), p.Environs...)
+	cmd.Env = append(os.Environ(), p.Env...)
 	// cmd.Stdout = bufOut
 	// cmd.Stderr = bufErr
 	err := cmd.Start()
