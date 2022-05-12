@@ -13,7 +13,6 @@ type JobSnapshot struct {
 	Group      string `json:"group"`
 	Cron       string `json:"cron"`
 	Target     string `json:"target"`
-	TargetType string `json:"targetType"`
 	Params     string `json:"params"`
 	Remark     string `json:"remark"`
 	CreateTime string `json:"createTime"`
@@ -41,7 +40,6 @@ func (s *JobSnapshot) NewExecuteSnapshot() *JobExecuteSnapshot {
 		Ip:         s.Ip,
 		Cron:       s.Cron,
 		Target:     s.Target,
-		TargetType: s.TargetType,
 		Params:     s.Params,
 		Status:     JobExecuteDoingStatus,
 		CreateTime: s.CreateTime,
@@ -59,7 +57,6 @@ type JobExecuteSnapshot struct {
 	Group      string `json:"group" db:"group"`
 	Cron       string `json:"cron" db:"cron"`
 	Target     string `json:"target" db:"target"`
-	TargetType string `json:"targetType" db:"target_type"`
 	Params     string `json:"params" db:"params"`
 	Remark     string `json:"remark" db:"remark"`
 	CreateTime string `json:"createTime" db:"create_time"`
