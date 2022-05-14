@@ -3,6 +3,7 @@ package bus
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -57,11 +58,22 @@ func (c *CmdJob) Execute(ctx context.Context, params string) (string, error) {
 	cmd := exec.Command(cParams[0], cParams[1:]...)
 	cmd.Dir = p.Workdir
 	cmd.Env = append(os.Environ(), p.Env...)
-	// cmd.Stdout = bufOut
-	// cmd.Stderr = bufErr
-	err := cmd.Start()
+	errReader, err := cmd.StderrPipe()
 	if err != nil {
 		return "failed", err
 	}
-	return "ok", err
+	defer errReader.Close()
+	outReader, err := cmd.StdoutPipe()
+	if err != nil {
+		return "failed", err
+	}
+	defer outReader.Close()
+	err = cmd.Start()
+	if err != nil {
+		return "failed", err
+	}
+	reader := io.MultiReader(errReader, outReader)
+	b, err := io.ReadAll(io.LimitReader(reader, 2000))
+	cmd.Wait()
+	return string(b), err
 }

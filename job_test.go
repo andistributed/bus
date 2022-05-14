@@ -1,6 +1,7 @@
 package bus
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -17,4 +18,13 @@ func TestJobCancel(t *testing.T) {
 	}()
 	time.Sleep(time.Second * 3)
 	job.Cancel()
+}
+
+func TestJobCmd(t *testing.T) {
+	ctx := context.Background()
+	result, err := DefaultCmdJob.Execute(ctx, `ls -alh /`)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result)
 }
