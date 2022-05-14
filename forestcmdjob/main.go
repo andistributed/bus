@@ -34,6 +34,7 @@ func init() {
 	flag.StringVar(&etcdPassword, "etcd-password", etcdPassword, "--etcd-password root (也可以通过环境变量ETCD_PASSWORD来指定)")
 	flag.StringVar(&jobGroup, "group", jobGroup, "--group "+jobGroup)
 	flag.StringVar(&currentIP, "current-ip", currentIP, "--current-ip "+currentIP+" (也可以通过环境变量FOREST_JOB_IP来指定)")
+	flag.Parse()
 }
 
 func main() {
