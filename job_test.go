@@ -27,4 +27,5 @@ func TestJobCmd(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println(result)
+	//panic(``)
 }

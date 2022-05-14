@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/webx-top/com"
 )
@@ -43,6 +44,7 @@ type CmdParam struct {
 	Command string   `json:"command"`
 	Workdir string   `json:"workdir"`
 	Env     []string `json:"env"`
+	Timeout string   `json:"timeout"`
 }
 
 func (c *CmdJob) Execute(ctx context.Context, params string) (string, error) {
@@ -55,7 +57,20 @@ func (c *CmdJob) Execute(ctx context.Context, params string) (string, error) {
 		p.Command = params
 	}
 	cParams := CmdParams(p.Command)
-	cmd := exec.Command(cParams[0], cParams[1:]...)
+	var duration time.Duration
+	if len(p.Timeout) > 0 {
+		var err error
+		duration, err = time.ParseDuration(p.Timeout)
+		if err != nil {
+			return "failed", err
+		}
+	}
+	var cancel context.CancelFunc
+	if duration > 0 {
+		ctx, cancel = context.WithTimeout(ctx, duration)
+		defer cancel()
+	}
+	cmd := exec.CommandContext(ctx, cParams[0], cParams[1:]...)
 	cmd.Dir = p.Workdir
 	cmd.Env = append(os.Environ(), p.Env...)
 	errReader, err := cmd.StderrPipe()
